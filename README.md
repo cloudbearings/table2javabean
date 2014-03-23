@@ -1,5 +1,6 @@
 table2javabean
 ==============
+-------------
 # Overview
 This tool is designed to help developer quick produce Java Bean source file
 from an existed sql table . It is implemented by dos batch and easy to use and config .
@@ -20,7 +21,7 @@ CLI will complain like  "mysql is not found " .
 
 Mysql.exe is used to connect to DB server and extract column name/type of
 specified table .So information about connection is need , such as
-host,port,user.etc . To make it easier to use , connection is stored in configuration file named **default.config** . 
+host,port,user.etc . To make it easier to use , connection is stored in configuration file named **default.ini** . 
 If default value not satisfies  your development enviroment , override the parameter in configuration file .
  
 `usage : table2javabean`

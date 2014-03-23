@@ -11,9 +11,15 @@
 @echo off
 setlocal
 
-set config=default.config
+where mysql 1>NUL 2>&1
+if not errorlevel 0 goto MYSQL_NOT_FOUND
+
+set config=default.ini
+set tempFile=.temp
+set bodyOfFile=.body
+
 @rem read connection parameter from config file
-for /f "tokens=1-2 skip=1 delims==" %%a in (%config%) do call :ReadConfig %%a %%b
+for /f "tokens=1-2 skip=1 delims==" %%a in (%config%) do call :FUNC_READ_CONFIG %%a %%b
 
 @rem  recieve  table name,class name ; if database is not set , recieve it too.
 if "%database%"=="" (
@@ -26,26 +32,28 @@ set /p class=Enter class name :
 @rem  set mysql connection parameter
 set mysql_cmd=mysql -h %host% -P %port% -u %user% -p information_schema  -e "select column_name, column_type from columns where table_schema='%database%' and table_name='%table%'"
 
-@rem  set file to store result data
-set tempfile=delete_it_later.txt
-set srcfile=%class%.java
-
-@rem  remove source file if exist
-if exist %srcfile% del %srcfile%
-
 @rem  execute sql query
-%mysql_cmd% >> %tempfile%
+%mysql_cmd% >> %tempFile%
 
-echo public Class  %class%  >> %srcfile%
-echo {  >> %srcfile%
+echo public Class  %class%  >> %bodyOfFile%
+echo {  >> %bodyOfFile%
 
 @rem  parse column name and colunm type
-for /f "tokens=1,2 skip=1" %%a in (%tempfile%) do call :Procesing %%a %%b
+for /f "tokens=1,2 skip=1" %%a in (%tempFile%) do call :FUNC_PROCESSING %%a %%b
 
-echo } >> %srcfile%
+echo } >> %bodyOfFile%
+
+set srcFile=%class%.java
+@rem  remove source file if exist
+if exist %srcFile% del %srcFile%
+if "%shouldImportDate%"=="1" echo import java.util.Date; >> %srcFile%
+type %bodyOfFile% >> %srcFile%
+del %tempFile%
+del %bodyOfFile%
+
 goto End
 
-:ReadConfig
+:FUNC_READ_CONFIG
 set key=%1
 set value=%2
 set key=%key: ==%
@@ -54,22 +62,22 @@ if not "%key:host=%"=="%key%"  set host=%value%
 if not "%key:port=%"=="%key%"  set port=%value%
 if not "%key:user=%"=="%key%"  set user=%value%
 if not "%key:database=%"=="%key%"  set database=%value%
-
 goto :eof
 
-:Procesing
+:FUNC_PROCESSING
 set name=%1
 set type=%2
-if not %type:date=%==%type%       echo     public Date %name%; >> %srcfile%
-if not %type:char=%==%type%       echo     public String %name%; >> %srcfile%
-if not %type:bigint=%==%type%     echo     public Long %name%; >> %srcfile%
-if not "%type:int(1)=%"=="%type%" echo     public Boolean %name%; >> %srcfile%
-if not %type:int=%==%type%        echo     public Integer %name%; >> %srcfile%
+if not %type:date=%==%type%       echo     public Date %name%; >> %bodyOfFile% & set shouldImportDate=1
+if not %type:char=%==%type%       echo     public String %name%; >> %bodyOfFile%
+if not %type:bigint=%==%type%     echo     public Long %name%; >> %bodyOfFile%
+if not "%type:int(1)=%"=="%type%" echo     public Boolean %name%; >> %bodyOfFile%
+if not %type:int=%==%type%        echo     public Integer %name%; >> %bodyOfFile%
 goto :eof
 
-:End
-type %srcfile%
-del %tempfile%
+:MYSQL_NOT_FOUND
+echo [ERROR] mysql.exe not found in PATH .
+goto END
 
+:End
 endlocal
 @echo on
