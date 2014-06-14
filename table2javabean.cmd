@@ -35,7 +35,7 @@ set mysql_cmd=mysql -h %host% -P %port% -u %user% -p information_schema  -e "sel
 @rem  execute sql query
 %mysql_cmd% >> %tempFile%
 
-echo public Class  %class%  >> %bodyOfFile%
+echo public class  %class%  >> %bodyOfFile%
 echo {  >> %bodyOfFile%
 
 @rem  parse column name and colunm type
@@ -75,7 +75,7 @@ if not "%type:int=%"=="%type%"        echo     public Integer %name%; >> %bodyOf
 if not "%type:tinyblob=%"=="%type%"        echo     public String %name%; >> %bodyOfFile%
 if not "%type:tinyint=%"=="%type%"        echo     public Integer %name%; >> %bodyOfFile%
 if not "%type:decimal=%"=="%type%"        echo     public BigDecimal %name%; >> %bodyOfFile%
-if not "%type:timestamp=%"=="%type%"        echo     public TimeStamp %name%; >> %bodyOfFile%
+if not "%type:timestamp=%"=="%type%"        echo     public Timestamp %name%; >> %bodyOfFile%
 if not "%type:enum=%"=="%type%"        echo     public String %name%; >> %bodyOfFile%
 goto :eof
 
