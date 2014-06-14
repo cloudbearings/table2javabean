@@ -67,11 +67,16 @@ goto :eof
 :FUNC_PROCESSING
 set name=%1
 set type=%2
-if not %type:date=%==%type%       echo     public Date %name%; >> %bodyOfFile% & set shouldImportDate=1
-if not %type:char=%==%type%       echo     public String %name%; >> %bodyOfFile%
-if not %type:bigint=%==%type%     echo     public Long %name%; >> %bodyOfFile%
+if not "%type:date=%"=="%type%"       echo     public Date %name%; >> %bodyOfFile% & set shouldImportDate=1
+if not "%type:char=%"=="%type%"       echo     public String %name%; >> %bodyOfFile%
+if not "%type:bigint=%"=="%type%"     echo     public Long %name%; >> %bodyOfFile%
 if not "%type:int(1)=%"=="%type%" echo     public Boolean %name%; >> %bodyOfFile%
-if not %type:int=%==%type%        echo     public Integer %name%; >> %bodyOfFile%
+if not "%type:int=%"=="%type%"        echo     public Integer %name%; >> %bodyOfFile%
+if not "%type:tinyblob=%"=="%type%"        echo     public String %name%; >> %bodyOfFile%
+if not "%type:tinyint=%"=="%type%"        echo     public Integer %name%; >> %bodyOfFile%
+if not "%type:decimal=%"=="%type%"        echo     public BigDecimal %name%; >> %bodyOfFile%
+if not "%type:timestamp=%"=="%type%"        echo     public TimeStamp %name%; >> %bodyOfFile%
+if not "%type:enum=%"=="%type%"        echo     public String %name%; >> %bodyOfFile%
 goto :eof
 
 :MYSQL_NOT_FOUND
